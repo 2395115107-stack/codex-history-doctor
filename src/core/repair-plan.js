@@ -1,3 +1,5 @@
+const { retargetThread } = require("./current-model");
+
 function createRepairPlan(diagnosis) {
   const operations = [];
 
@@ -15,11 +17,12 @@ function createRepairPlan(diagnosis) {
 
   if (diagnosis.repairable.includes("upsert-thread") && diagnosis.stateDbPath) {
     for (const session of diagnosis.sessions) {
+      const thread = retargetThread(session, diagnosis.currentModel || {});
       operations.push({
         type: "upsert-thread",
-        description: `Upsert thread ${session.id} in ${diagnosis.stateDbPath}.`,
+        description: `Upsert thread ${session.id} in ${diagnosis.stateDbPath} and attach it to ${thread.modelProvider}/${thread.model || "unknown"}.`,
         stateDbPath: diagnosis.stateDbPath,
-        thread: session
+        thread
       });
     }
   }
@@ -28,6 +31,7 @@ function createRepairPlan(diagnosis) {
     generatedAt: new Date().toISOString(),
     codexDir: diagnosis.codexDir,
     stateDbPath: diagnosis.stateDbPath,
+    currentModel: diagnosis.currentModel,
     operationCount: operations.length,
     operations
   };

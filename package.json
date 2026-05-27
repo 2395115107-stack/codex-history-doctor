@@ -1,6 +1,6 @@
 {
   "name": "codex-history-doctor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Repair and restore local Codex Desktop history indexes safely.",
   "main": "src/electron/main.js",
   "bin": {

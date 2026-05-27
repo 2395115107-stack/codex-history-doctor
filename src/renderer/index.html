@@ -13,73 +13,83 @@
           <div class="brand-mark">CHD</div>
           <div>
             <h1>Codex History Doctor</h1>
-            <p>Local repair bench for Codex Desktop history.</p>
+            <p data-i18n="brand.subtitle">Local repair bench for Codex Desktop history.</p>
           </div>
         </div>
 
-        <label class="field-label" for="codexDir">Codex data folder</label>
+        <section class="settings-panel">
+          <div class="panel-title" data-i18n="settings.title">Settings</div>
+          <label class="field-label" for="languageSelect" data-i18n="settings.language">Language</label>
+          <select id="languageSelect">
+            <option value="en">English</option>
+            <option value="zh-CN">简体中文</option>
+          </select>
+        </section>
+
+        <label class="field-label" for="codexDir" data-i18n="form.codexFolder">Codex data folder</label>
         <div class="path-row">
           <input id="codexDir" type="text" spellcheck="false" />
-          <button id="chooseDir" class="icon-button" title="Choose folder">...</button>
+          <button id="chooseDir" class="icon-button" title="Choose folder" data-i18n-title="actions.chooseFolder">...</button>
         </div>
 
         <div class="action-stack">
-          <button id="scanBtn" class="primary">Scan</button>
-          <button id="backupBtn">Backup</button>
-          <button id="dryRunBtn">Repair Preview</button>
-          <button id="repairBtn" class="danger">Repair</button>
-          <button id="reportBtn">Report</button>
+          <button id="scanBtn" class="primary" data-i18n="actions.scan">Scan</button>
+          <button id="backupBtn" data-i18n="actions.backup">Backup</button>
+          <button id="dryRunBtn" data-i18n="actions.preview">Repair Preview</button>
+          <button id="repairBtn" class="danger" data-i18n="actions.repair">Repair</button>
+          <button id="reportBtn" data-i18n="actions.report">Report</button>
         </div>
 
         <section class="restore-panel">
-          <div class="panel-title">Restore</div>
+          <div class="panel-title" data-i18n="restore.title">Restore</div>
           <select id="backupSelect"></select>
-          <button id="restoreBtn">Restore selected backup</button>
+          <button id="restoreBtn" data-i18n="restore.button">Restore selected backup</button>
         </section>
       </aside>
 
       <section class="workspace">
         <header class="topline">
           <div>
-            <p class="eyebrow">Private by design</p>
-            <h2>Scan first. Preview every fix. Repair only after backup.</h2>
+            <p class="eyebrow" data-i18n="hero.eyebrow">Private by design</p>
+            <h2 data-i18n="hero.title">Scan first. Preview every fix. Repair only after backup.</h2>
+            <p id="currentModel" class="model-line" data-i18n="hero.modelUnknown">Current model: not scanned yet</p>
           </div>
-          <div id="statusPill" class="status-pill">Idle</div>
+          <div id="statusPill" class="status-pill" data-i18n="status.idle">Idle</div>
         </header>
 
         <section class="metrics" id="metrics">
-          <article><span>Rollout files</span><strong>-</strong></article>
-          <article><span>Sessions</span><strong>-</strong></article>
-          <article><span>Index records</span><strong>-</strong></article>
-          <article><span>DB threads</span><strong>-</strong></article>
-          <article><span>Issues</span><strong>-</strong></article>
-          <article><span>Fixes</span><strong>-</strong></article>
+          <article><span data-i18n="metrics.rollouts">Rollout files</span><strong>-</strong></article>
+          <article><span data-i18n="metrics.sessions">Sessions</span><strong>-</strong></article>
+          <article><span data-i18n="metrics.index">Index records</span><strong>-</strong></article>
+          <article><span data-i18n="metrics.threads">DB threads</span><strong>-</strong></article>
+          <article><span data-i18n="metrics.issues">Issues</span><strong>-</strong></article>
+          <article><span data-i18n="metrics.fixes">Fixes</span><strong>-</strong></article>
         </section>
 
         <section class="split">
           <article class="surface">
             <div class="section-head">
-              <h3>Diagnosis</h3>
-              <span id="issueCount">No scan yet</span>
+              <h3 data-i18n="diagnosis.title">Diagnosis</h3>
+              <span id="issueCount" data-i18n="diagnosis.noScan">No scan yet</span>
             </div>
-            <div id="issues" class="list empty">Run a scan to see history health.</div>
+            <div id="issues" class="list empty" data-i18n="diagnosis.empty">Run a scan to see history health.</div>
           </article>
 
           <article class="surface">
             <div class="section-head">
-              <h3>Repair Preview</h3>
-              <span id="operationCount">0 operations</span>
+              <h3 data-i18n="preview.title">Repair Preview</h3>
+              <span id="operationCount" data-i18n="preview.zero">0 operations</span>
             </div>
-            <div id="operations" class="list empty">No repair plan yet.</div>
+            <div id="operations" class="list empty" data-i18n="preview.empty">No repair plan yet.</div>
           </article>
         </section>
 
         <section class="surface session-surface">
           <div class="section-head">
-            <h3>Recovered Sessions</h3>
-            <span id="sessionCount">0 found</span>
+            <h3 data-i18n="sessions.title">Recovered Sessions</h3>
+            <span id="sessionCount" data-i18n="sessions.zero">0 found</span>
           </div>
-          <div id="sessions" class="session-grid empty">Scanned sessions will appear here.</div>
+          <div id="sessions" class="session-grid empty" data-i18n="sessions.empty">Scanned sessions will appear here.</div>
         </section>
       </section>
     </main>

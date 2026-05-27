@@ -148,6 +148,15 @@ select {
   margin: 22px 0;
 }
 
+.settings-panel {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 18px 0;
+  margin-bottom: 22px;
+  display: grid;
+  gap: 10px;
+}
+
 .restore-panel {
   border-top: 1px solid var(--line);
   padding-top: 20px;
@@ -184,6 +193,12 @@ h2 {
   max-width: 760px;
   font-size: 42px;
   line-height: 0.98;
+}
+
+.model-line {
+  margin-top: 12px;
+  color: var(--muted);
+  font-weight: 700;
 }
 
 .status-pill {

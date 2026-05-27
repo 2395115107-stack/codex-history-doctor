@@ -1,6 +1,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { exists, listFiles, readJsonl } = require("./fs-utils");
+const { detectCurrentModel } = require("./current-model");
 const { parseSessionFile, looksMojibake } = require("./session-parser");
 const { listThreads } = require("./sqlite-store");
 
@@ -23,6 +24,7 @@ async function scanCodex(codexDir) {
     : [];
   const stateDbPath = selectStateDatabase(stateDatabases);
   const threads = stateDbPath ? listThreads(stateDbPath) : [];
+  const currentModel = await detectCurrentModel(codexDir, threads);
   const index = await readSessionIndex(indexPath);
 
   return {
@@ -34,7 +36,8 @@ async function scanCodex(codexDir) {
     sessionFiles,
     sessions: parsedSessions,
     index,
-    threads
+    threads,
+    currentModel
   };
 }
 
@@ -69,6 +72,7 @@ function diagnose(scan) {
   const indexIds = new Set(scan.index.records.map((record) => record.id).filter(Boolean));
   const threadById = new Map(scan.threads.map((thread) => [thread.id, thread]));
   const sessionById = new Map();
+  const currentModel = scan.currentModel || { source: "unknown", modelProvider: "unknown", model: null };
 
   for (const [id, sessions] of sessionIds.entries()) {
     if (id === "__missing__") continue;
@@ -175,6 +179,23 @@ function diagnose(scan) {
         });
         repairable.push("upsert-thread");
       }
+      if (thread.model_provider !== currentModel.modelProvider || (thread.model || null) !== (currentModel.model || null)) {
+        issues.push({
+          code: "thread-model-stale",
+          severity: "repairable",
+          message: `Thread ${session.id} is attached to ${thread.model_provider || "unknown"}/${thread.model || "unknown"} instead of current ${currentModel.modelProvider || "unknown"}/${currentModel.model || "unknown"}.`,
+          id: session.id,
+          current: {
+            modelProvider: currentModel.modelProvider,
+            model: currentModel.model
+          },
+          existing: {
+            modelProvider: thread.model_provider || null,
+            model: thread.model || null
+          }
+        });
+        repairable.push("upsert-thread");
+      }
     }
   }
 
@@ -194,6 +215,7 @@ function diagnose(scan) {
     generatedAt: new Date().toISOString(),
     codexDir: scan.codexDir,
     stateDbPath: scan.stateDbPath,
+    currentModel,
     totals: {
       rolloutFiles: scan.sessionFiles.length,
       parsedSessions: sessionFacts.length,

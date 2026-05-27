@@ -12,6 +12,8 @@ Codex History Doctor is a safe local repair bench, not a cloud sync tool and not
 
 If the conversation rollout files still exist locally, the tool helps rebuild the local history index and database rows that Codex Desktop uses to show those conversations.
 
+Recovered and stale database threads are attached to the current `model_provider` and `model` from `.codex/config.toml`, so older threads can appear under the provider/model the user is actively using now.
+
 ## v1 Boundaries
 
 - No cloud upload.

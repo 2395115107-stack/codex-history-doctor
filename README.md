@@ -6,12 +6,15 @@ When Codex still has local rollout files but the desktop history list is missing
 
 It never uploads your conversations. Everything runs on your machine.
 
+It also reads the current top-level `model_provider` and `model` from `.codex/config.toml` and reattaches recovered or stale threads to that current model identity.
+
 ## What It Repairs
 
 - Missing or damaged `session_index.jsonl`
 - Missing `threads` rows in `state_*.sqlite`
 - Thread rows pointing to missing rollout paths
 - Empty or suspicious thread titles
+- Threads still attached to an old `model_provider` or `model`
 - Duplicate session ids, reported instead of silently hidden
 - Malformed jsonl lines, reported without deleting source files
 
@@ -25,6 +28,8 @@ npm start
 ```
 
 Before repairing, close Codex Desktop. This avoids writing to the same local files while Codex is running.
+
+The desktop app includes a Settings section with English and Simplified Chinese.
 
 Use the app in this order:
 

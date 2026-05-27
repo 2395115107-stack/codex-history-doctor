@@ -102,6 +102,7 @@ function printDiagnosis(diagnosis, repairPlan) {
   console.log("====================");
   console.log(`Codex directory: ${diagnosis.codexDir}`);
   console.log(`State database: ${diagnosis.stateDbPath || "not found"}`);
+  console.log(`Current model: ${diagnosis.currentModel?.modelProvider || "unknown"}/${diagnosis.currentModel?.model || "unknown"} (${diagnosis.currentModel?.source || "unknown"})`);
   console.log("");
   console.log(`Rollout files: ${diagnosis.totals.rolloutFiles}`);
   console.log(`Unique sessions: ${diagnosis.totals.uniqueSessions}`);

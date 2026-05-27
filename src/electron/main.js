@@ -114,6 +114,7 @@ function publicInspection(inspection) {
       generatedAt: inspection.repairPlan.generatedAt,
       codexDir: inspection.repairPlan.codexDir,
       stateDbPath: inspection.repairPlan.stateDbPath,
+      currentModel: inspection.repairPlan.currentModel,
       operationCount: inspection.repairPlan.operationCount,
       operations: inspection.repairPlan.operations.map((operation) => ({
         type: operation.type,

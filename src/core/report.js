@@ -20,6 +20,7 @@ function renderMarkdownReport(diagnosis, repairPlan) {
     `Generated: ${diagnosis.generatedAt}`,
     `Codex directory: \`${diagnosis.codexDir}\``,
     `State database: \`${diagnosis.stateDbPath || "not found"}\``,
+    `Current model: \`${diagnosis.currentModel?.modelProvider || "unknown"}/${diagnosis.currentModel?.model || "unknown"}\` (${diagnosis.currentModel?.source || "unknown"})`,
     "",
     "## Summary",
     "",

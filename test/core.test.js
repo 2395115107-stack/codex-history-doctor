@@ -69,10 +69,64 @@ test("repair apply writes index and upserts sqlite thread, then restore reverts"
   assert.equal(fs.existsSync(path.join(codexDir, "session_index.jsonl")), false);
 });
 
-async function fixtureCodex() {
+test("repair retargets old threads to the current configured model provider and model", async () => {
+  const codexDir = await fixtureCodex({
+    includeThread: true,
+    threadModelProvider: "old-provider",
+    threadModel: "old-model",
+    configModelProvider: "custom",
+    configModel: "gpt-5.5"
+  });
+  const result = await inspectCodex({ codexDir });
+  assert.equal(result.diagnosis.currentModel.modelProvider, "custom");
+  assert.equal(result.diagnosis.currentModel.model, "gpt-5.5");
+  assert.ok(result.diagnosis.issues.some((issue) => issue.code === "thread-model-stale"));
+
+  await applyRepairPlan(result.repairPlan, { apply: true, codexDir, doctorDir: await fixtureDir() });
+
+  const db = new DatabaseSync(path.join(codexDir, "state_5.sqlite"), { readOnly: true });
+  const row = db.prepare("select model_provider, model from threads where id = ?").get("019e67a9-4093-7863-85b8-65a9930bc13f");
+  db.close();
+  assert.equal(row.model_provider, "custom");
+  assert.equal(row.model, "gpt-5.5");
+});
+
+async function fixtureCodex(options = {}) {
   const codexDir = await fixtureDir();
   await writeRollout(codexDir, "019e67a9-4093-7863-85b8-65a9930bc13f", "Restore my Codex history");
   createStateDb(path.join(codexDir, "state_5.sqlite"));
+  if (options.configModelProvider || options.configModel) {
+    await fs.promises.writeFile(
+      path.join(codexDir, "config.toml"),
+      `model_provider = "${options.configModelProvider || "custom"}"\nmodel = "${options.configModel || "gpt-5.5"}"\n`,
+      "utf8"
+    );
+  }
+  if (options.includeThread) {
+    const db = new DatabaseSync(path.join(codexDir, "state_5.sqlite"));
+    db.prepare(`
+      insert into threads (
+        id, rollout_path, created_at, updated_at, source, model_provider, cwd, title,
+        sandbox_policy, approval_mode, model, created_at_ms, updated_at_ms, preview
+      ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      "019e67a9-4093-7863-85b8-65a9930bc13f",
+      path.join(codexDir, "sessions", "2026", "05", "27", "rollout-2026-05-27T12-00-00-019e67a9-4093-7863-85b8-65a9930bc13f.jsonl"),
+      1779854400,
+      1779854402,
+      "vscode",
+      options.threadModelProvider || "old-provider",
+      "D:\\Users\\sample",
+      "Restore my Codex history",
+      JSON.stringify({ type: "unknown" }),
+      "unknown",
+      options.threadModel || "old-model",
+      1779854400000,
+      1779854402000,
+      "Restore my Codex history"
+    );
+    db.close();
+  }
   return codexDir;
 }
 

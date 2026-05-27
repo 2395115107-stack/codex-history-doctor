@@ -1,0 +1,53 @@
+{
+  "name": "codex-history-doctor",
+  "version": "0.1.0",
+  "description": "Repair and restore local Codex Desktop history indexes safely.",
+  "main": "src/electron/main.js",
+  "bin": {
+    "codex-history-doctor": "src/cli.js"
+  },
+  "scripts": {
+    "start": "electron .",
+    "cli": "node src/cli.js",
+    "test": "node --test",
+    "build": "node scripts/create-icon.js && node scripts/build.js",
+    "package:win": "electron-builder --win portable --x64"
+  },
+  "keywords": [
+    "codex",
+    "history",
+    "desktop",
+    "repair",
+    "electron"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "devDependencies": {
+    "electron": "^42.3.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "dev.codexhistory.doctor",
+    "productName": "Codex History Doctor",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json",
+      "README.md",
+      "LICENSE"
+    ],
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": [
+        "portable"
+      ]
+    }
+  }
+}

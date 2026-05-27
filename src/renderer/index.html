@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Codex History Doctor</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">CHD</div>
+          <div>
+            <h1>Codex History Doctor</h1>
+            <p>Local repair bench for Codex Desktop history.</p>
+          </div>
+        </div>
+
+        <label class="field-label" for="codexDir">Codex data folder</label>
+        <div class="path-row">
+          <input id="codexDir" type="text" spellcheck="false" />
+          <button id="chooseDir" class="icon-button" title="Choose folder">...</button>
+        </div>
+
+        <div class="action-stack">
+          <button id="scanBtn" class="primary">Scan</button>
+          <button id="backupBtn">Backup</button>
+          <button id="dryRunBtn">Repair Preview</button>
+          <button id="repairBtn" class="danger">Repair</button>
+          <button id="reportBtn">Report</button>
+        </div>
+
+        <section class="restore-panel">
+          <div class="panel-title">Restore</div>
+          <select id="backupSelect"></select>
+          <button id="restoreBtn">Restore selected backup</button>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <header class="topline">
+          <div>
+            <p class="eyebrow">Private by design</p>
+            <h2>Scan first. Preview every fix. Repair only after backup.</h2>
+          </div>
+          <div id="statusPill" class="status-pill">Idle</div>
+        </header>
+
+        <section class="metrics" id="metrics">
+          <article><span>Rollout files</span><strong>-</strong></article>
+          <article><span>Sessions</span><strong>-</strong></article>
+          <article><span>Index records</span><strong>-</strong></article>
+          <article><span>DB threads</span><strong>-</strong></article>
+          <article><span>Issues</span><strong>-</strong></article>
+          <article><span>Fixes</span><strong>-</strong></article>
+        </section>
+
+        <section class="split">
+          <article class="surface">
+            <div class="section-head">
+              <h3>Diagnosis</h3>
+              <span id="issueCount">No scan yet</span>
+            </div>
+            <div id="issues" class="list empty">Run a scan to see history health.</div>
+          </article>
+
+          <article class="surface">
+            <div class="section-head">
+              <h3>Repair Preview</h3>
+              <span id="operationCount">0 operations</span>
+            </div>
+            <div id="operations" class="list empty">No repair plan yet.</div>
+          </article>
+        </section>
+
+        <section class="surface session-surface">
+          <div class="section-head">
+            <h3>Recovered Sessions</h3>
+            <span id="sessionCount">0 found</span>
+          </div>
+          <div id="sessions" class="session-grid empty">Scanned sessions will appear here.</div>
+        </section>
+      </section>
+    </main>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>

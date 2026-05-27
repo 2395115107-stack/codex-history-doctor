@@ -85,6 +85,24 @@ function registerIpc() {
     };
   });
 
+  ipcMain.handle("doctor:fix", async (_event, options) => {
+    const codexDir = options?.codexDir || defaultCodexDir();
+    const doctorDir = options?.doctorDir || defaultDoctorDir();
+    const before = await inspectCodex({ codexDir });
+    const report = await applyRepairPlan(before.repairPlan, {
+      apply: true,
+      codexDir,
+      doctorDir
+    });
+    const after = await inspectCodex({ codexDir });
+    lastInspection = after;
+    return {
+      before: publicInspection(before),
+      report,
+      after: publicInspection(after)
+    };
+  });
+
   ipcMain.handle("doctor:writeReports", async (_event, options) => {
     ensureInspection();
     const outputDir = options?.outputDir || path.join(options?.doctorDir || defaultDoctorDir(), "reports", "latest");

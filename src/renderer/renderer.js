@@ -15,6 +15,7 @@ const messages = {
     "form.codexFolder": "Codex data folder",
     "actions.chooseFolder": "Choose folder",
     "actions.scan": "Scan",
+    "actions.fix": "One-click Fix",
     "actions.backup": "Backup",
     "actions.preview": "Repair Preview",
     "actions.repair": "Repair",
@@ -56,6 +57,8 @@ const messages = {
     "status.previewing": "Previewing",
     "status.previewReady": "Preview ready: {count} operations",
     "status.noRepair": "No repair needed",
+    "status.fixing": "Fixing",
+    "status.fixDone": "Fix complete: {count} operations, {issues} issues remain",
     "status.repairing": "Repairing",
     "status.repairDone": "Repair complete: {count} operations",
     "status.reportWriting": "Writing report",
@@ -65,6 +68,7 @@ const messages = {
     "status.restored": "Restored backup: {id}",
     "status.scanDone": "Scan complete",
     "status.error": "Error: {message}",
+    "confirm.fix": "One-click fix will scan, create a backup, sync old provider/model threads, update rollout metadata, rebuild the sidebar index, and scan again. Close Codex Desktop first. Continue?",
     "confirm.repair": "Repair will create a backup first, then apply {count} operations. Continue?",
     "confirm.restore": "Restore backup {id} into the selected Codex folder?"
   },
@@ -75,6 +79,7 @@ const messages = {
     "form.codexFolder": "Codex 数据文件夹",
     "actions.chooseFolder": "选择文件夹",
     "actions.scan": "扫描",
+    "actions.fix": "一键修复",
     "actions.backup": "备份",
     "actions.preview": "修复预览",
     "actions.repair": "执行修复",
@@ -116,6 +121,8 @@ const messages = {
     "status.previewing": "正在生成预览",
     "status.previewReady": "预览已生成：{count} 个操作",
     "status.noRepair": "无需修复",
+    "status.fixing": "正在一键修复",
+    "status.fixDone": "修复完成：执行 {count} 个操作，剩余 {issues} 个问题",
     "status.repairing": "正在修复",
     "status.repairDone": "修复完成：{count} 个操作",
     "status.reportWriting": "正在写入报告",
@@ -125,6 +132,7 @@ const messages = {
     "status.restored": "已恢复备份：{id}",
     "status.scanDone": "扫描完成",
     "status.error": "错误：{message}",
+    "confirm.fix": "一键修复会扫描、自动备份、同步旧 provider/model 线程、更新会话元数据、重建侧边栏索引，并再次扫描验证。请先关闭 Codex Desktop。继续吗？",
     "confirm.repair": "修复会先创建备份，然后执行 {count} 个操作。继续吗？",
     "confirm.restore": "要把备份 {id} 恢复到当前选择的 Codex 文件夹吗？"
   }
@@ -154,11 +162,27 @@ function bindEvents() {
     if (selected) $("codexDir").value = selected;
   });
   $("scanBtn").addEventListener("click", scan);
+  $("fixBtn").addEventListener("click", fix);
   $("backupBtn").addEventListener("click", backup);
   $("dryRunBtn").addEventListener("click", dryRun);
   $("repairBtn").addEventListener("click", repair);
   $("reportBtn").addEventListener("click", writeReport);
   $("restoreBtn").addEventListener("click", restore);
+}
+
+async function fix() {
+  const confirmed = window.confirm(t("confirm.fix"));
+  if (!confirmed) return;
+  await run(t("status.fixing"), async () => {
+    const result = await window.doctor.fix({ codexDir: currentCodexDir(), doctorDir: state.defaults.doctorDir });
+    state.inspection = result.after;
+    renderInspection();
+    await refreshBackups();
+    setStatus(t("status.fixDone", {
+      count: result.report.operations.length,
+      issues: result.after.diagnosis.totals.issues
+    }));
+  });
 }
 
 async function scan() {

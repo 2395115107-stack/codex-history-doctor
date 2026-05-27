@@ -43,6 +43,34 @@ async function main(argv) {
     return;
   }
 
+  if (command === "fix") {
+    const before = await inspectCodex({ codexDir });
+    printDiagnosis(before.diagnosis, before.repairPlan);
+    if (before.repairPlan.operationCount === 0) {
+      console.log("\nNothing to fix.");
+      return;
+    }
+    const report = await applyRepairPlan(before.repairPlan, {
+      apply: true,
+      codexDir,
+      doctorDir,
+      reportPath: path.join(doctorDir, "reports", "latest", "fix-result.json")
+    });
+    const after = await inspectCodex({ codexDir });
+    console.log("\nFix applied.");
+    console.log(JSON.stringify({
+      before: before.diagnosis.totals,
+      applied: report.operations,
+      after: after.diagnosis.totals,
+      remainingIssues: after.diagnosis.issues.map((issue) => ({
+        code: issue.code,
+        severity: issue.severity,
+        message: issue.message
+      }))
+    }, null, 2));
+    return;
+  }
+
   if (command === "repair") {
     const apply = Boolean(args.apply);
     if (apply && !args.yes) {
@@ -125,12 +153,14 @@ Usage:
   codex-history-doctor scan [--codex-dir <path>] [--report [dir]]
   codex-history-doctor doctor [--codex-dir <path>] [--report [dir]]
   codex-history-doctor backup [--codex-dir <path>]
+  codex-history-doctor fix [--codex-dir <path>]
   codex-history-doctor repair --dry-run [--codex-dir <path>]
   codex-history-doctor repair --apply --yes [--codex-dir <path>]
   codex-history-doctor backups
   codex-history-doctor restore <backup-id> [--codex-dir <path>]
 
 Safety:
+  fix scans, creates a backup, applies repair, and scans again.
   repair --apply always creates a backup first.
   repair --apply requires --yes so it cannot run by accident.
 `);

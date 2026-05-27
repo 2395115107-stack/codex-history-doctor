@@ -14,6 +14,8 @@ If the conversation rollout files still exist locally, the tool helps rebuild th
 
 Recovered and stale database threads are attached to the current `model_provider` and `model` from `.codex/config.toml`, so older threads can appear under the provider/model the user is actively using now.
 
+The main repair action is one-click sync: scan, backup, retarget database rows, sync rollout `session_meta` provider/model fields, rebuild `session_index.jsonl`, and scan again.
+
 ## v1 Boundaries
 
 - No cloud upload.

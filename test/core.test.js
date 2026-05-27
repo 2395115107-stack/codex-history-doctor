@@ -10,6 +10,7 @@ const {
   inspectCodex,
   restoreBackup
 } = require("../src/core");
+const { readJsonl } = require("../src/core/fs-utils");
 const { parseSessionFile, titleFromMessage } = require("../src/core/session-parser");
 
 test("titleFromMessage creates a compact title", () => {
@@ -91,9 +92,38 @@ test("repair retargets old threads to the current configured model provider and 
   assert.equal(row.model, "gpt-5.5");
 });
 
+test("repair syncs thread rows, rollout metadata, and sidebar index to the current model", async () => {
+  const codexDir = await fixtureCodex({
+    includeThread: true,
+    threadModelProvider: "old-provider",
+    threadModel: "old-model",
+    rolloutModelProvider: "older-provider",
+    rolloutModel: "older-model",
+    configModelProvider: "custom",
+    configModel: "gpt-5.5"
+  });
+  const before = await inspectCodex({ codexDir });
+  assert.ok(before.repairPlan.operations.some((operation) => operation.type === "write-session-index"));
+  assert.ok(before.repairPlan.operations.some((operation) => operation.type === "upsert-thread"));
+  assert.ok(before.repairPlan.operations.some((operation) => operation.type === "sync-session-meta"));
+
+  await applyRepairPlan(before.repairPlan, { apply: true, codexDir, doctorDir: await fixtureDir() });
+  const after = await inspectCodex({ codexDir });
+  assert.equal(after.diagnosis.issues.some((issue) => issue.code === "thread-model-stale"), false);
+
+  const index = JSON.parse(await fs.promises.readFile(path.join(codexDir, "session_index.jsonl"), "utf8").then((text) => text.trim().split(/\r?\n/)[0]));
+  assert.equal(index.id, "019e67a9-4093-7863-85b8-65a9930bc13f");
+
+  const rolloutPath = path.join(codexDir, "sessions", "2026", "05", "27", "rollout-2026-05-27T12-00-00-019e67a9-4093-7863-85b8-65a9930bc13f.jsonl");
+  const rollout = await readJsonl(rolloutPath);
+  const meta = rollout.records.find((record) => record.type === "session_meta");
+  assert.equal(meta.payload.model_provider, "custom");
+  assert.equal(meta.payload.model, "gpt-5.5");
+});
+
 async function fixtureCodex(options = {}) {
   const codexDir = await fixtureDir();
-  await writeRollout(codexDir, "019e67a9-4093-7863-85b8-65a9930bc13f", "Restore my Codex history");
+  await writeRollout(codexDir, "019e67a9-4093-7863-85b8-65a9930bc13f", "Restore my Codex history", options);
   createStateDb(path.join(codexDir, "state_5.sqlite"));
   if (options.configModelProvider || options.configModel) {
     await fs.promises.writeFile(
@@ -134,7 +164,7 @@ async function fixtureDir() {
   return fs.promises.mkdtemp(path.join(os.tmpdir(), "codex-history-doctor-"));
 }
 
-async function writeRollout(codexDir, id, message) {
+async function writeRollout(codexDir, id, message, options = {}) {
   const file = path.join(codexDir, "sessions", "2026", "05", "27", `rollout-2026-05-27T12-00-00-${id}.jsonl`);
   await fs.promises.mkdir(path.dirname(file), { recursive: true });
   const records = [
@@ -146,7 +176,8 @@ async function writeRollout(codexDir, id, message) {
         timestamp: "2026-05-27T04:00:00.000Z",
         cwd: "D:\\Users\\sample",
         source: "vscode",
-        model_provider: "openai",
+        model_provider: options.rolloutModelProvider || "openai",
+        model: options.rolloutModel || "gpt-5.4",
         cli_version: "0.133.0-alpha.1",
         thread_source: "user"
       }

@@ -195,6 +195,7 @@ function diagnose(scan) {
           }
         });
         repairable.push("upsert-thread");
+        repairable.push("retarget-model");
       }
     }
   }

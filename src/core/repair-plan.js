@@ -3,10 +3,10 @@ const { retargetThread } = require("./current-model");
 function createRepairPlan(diagnosis) {
   const operations = [];
 
-  if (diagnosis.repairable.includes("rebuild-session-index")) {
+  if (diagnosis.repairable.includes("rebuild-session-index") || diagnosis.repairable.includes("retarget-model")) {
     operations.push({
       type: "write-session-index",
-      description: "Rebuild session_index.jsonl from parsed rollout files.",
+      description: "Rebuild session_index.jsonl from parsed rollout files for the current sidebar.",
       records: diagnosis.sessions.map((session) => ({
         id: session.id,
         thread_name: session.title,
@@ -15,7 +15,7 @@ function createRepairPlan(diagnosis) {
     });
   }
 
-  if (diagnosis.repairable.includes("upsert-thread") && diagnosis.stateDbPath) {
+  if ((diagnosis.repairable.includes("upsert-thread") || diagnosis.repairable.includes("retarget-model")) && diagnosis.stateDbPath) {
     for (const session of diagnosis.sessions) {
       const thread = retargetThread(session, diagnosis.currentModel || {});
       operations.push({
@@ -23,6 +23,18 @@ function createRepairPlan(diagnosis) {
         description: `Upsert thread ${session.id} in ${diagnosis.stateDbPath} and attach it to ${thread.modelProvider}/${thread.model || "unknown"}.`,
         stateDbPath: diagnosis.stateDbPath,
         thread
+      });
+    }
+  }
+
+  if (diagnosis.repairable.includes("retarget-model")) {
+    for (const session of diagnosis.sessions) {
+      operations.push({
+        type: "sync-session-meta",
+        description: `Sync rollout metadata for ${session.id} to ${diagnosis.currentModel?.modelProvider || "unknown"}/${diagnosis.currentModel?.model || "unknown"}.`,
+        filePath: session.rolloutPath,
+        id: session.id,
+        currentModel: diagnosis.currentModel
       });
     }
   }

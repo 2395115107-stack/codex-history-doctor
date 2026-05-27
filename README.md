@@ -34,17 +34,16 @@ The desktop app includes a Settings section with English and Simplified Chinese.
 Use the app in this order:
 
 1. Scan
-2. Backup
-3. Repair Preview
-4. Repair
-5. Report
+2. One-click Fix
+3. Report
 
-The Repair button creates a backup before writing anything.
+One-click Fix creates a backup, updates old provider/model threads, syncs rollout session metadata, rebuilds the sidebar index, and scans again.
 
 ## CLI
 
 ```bash
 npm run cli -- scan
+npm run cli -- fix
 npm run cli -- doctor --report
 npm run cli -- backup
 npm run cli -- repair --dry-run
@@ -54,6 +53,7 @@ npm run cli -- restore <backup-id>
 ```
 
 Close Codex Desktop before running `repair --apply --yes` or `restore`.
+For normal use, prefer `fix`; it performs scan, backup, repair, and verification in one run.
 
 Use a custom Codex folder:
 

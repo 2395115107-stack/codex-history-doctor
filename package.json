@@ -1,6 +1,6 @@
 {
   "name": "codex-history-doctor",
-  "version": "0.1.2",
+  "version": "0.2.0-beta.1",
   "description": "Repair and restore local Codex Desktop history indexes safely.",
   "main": "src/electron/main.js",
   "bin": {
@@ -11,7 +11,10 @@
     "cli": "node src/cli.js",
     "test": "node --test",
     "build": "node scripts/create-icon.js && node scripts/build.js",
-    "package:win": "electron-builder --win portable --x64"
+    "package:win": "electron-builder --win portable --x64",
+    "package:mac": "electron-builder --mac dmg zip --x64 --arm64",
+    "package:linux": "electron-builder --linux AppImage deb --x64",
+    "package:all": "electron-builder --win portable --linux AppImage deb --mac dmg zip --x64"
   },
   "keywords": [
     "codex",
@@ -47,6 +50,21 @@
       "icon": "assets/icon.ico",
       "target": [
         "portable"
+      ]
+    },
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "linux": {
+      "category": "Utility",
+      "icon": "assets/icon.png",
+      "target": [
+        "AppImage",
+        "deb"
       ]
     }
   }

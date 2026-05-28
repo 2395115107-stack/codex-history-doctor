@@ -97,9 +97,28 @@ npm install
 npm test
 npm run build
 npm run package:win
+npm run package:mac
+npm run package:linux
 ```
 
+## Downloads
+
+The Windows build is the stable release target. macOS and Linux builds are planned as beta artifacts:
+
+- Windows: portable `.exe`
+- macOS beta: `.dmg` and `.zip`
+- Linux beta: `.AppImage` and `.deb`
+
+macOS beta builds may be unsigned at first. If that is the case, users may need to allow the app manually in macOS privacy and security settings.
+
 ## Release Notes
+
+### v0.2.0-beta.1
+
+- Add macOS beta package.
+- Add Linux beta package.
+- Build all desktop packages through GitHub Actions.
+- Publish tag builds as GitHub Release assets.
 
 ### v0.1.0
 

@@ -5,6 +5,7 @@ const path = require("node:path");
 
 const outDir = path.join(process.cwd(), "assets");
 const outPath = path.join(outDir, "icon.ico");
+const pngPath = path.join(outDir, "icon.png");
 fs.mkdirSync(outDir, { recursive: true });
 
 const size = 256;
@@ -95,3 +96,81 @@ fillRect(178, 166, 38, 8, colors.red);
 
 fs.writeFileSync(outPath, buffer);
 console.log(`Icon written to ${outPath}`);
+
+fs.writeFileSync(pngPath, createPng(size, (x, y) => {
+  const dx = x - 128;
+  const dy = y - 128;
+  const outside = x < 34 || x >= 222 || y < 34 || y >= 222;
+  if (outside) return colors.transparent;
+  if (x < 44 || x >= 212 || y < 44 || y >= 212) return colors.ink;
+  if (inCircle(x, y, 178, 78, 23)) return colors.green;
+  if ((x >= 169 && x < 187 && y >= 56 && y < 100) || (x >= 156 && x < 200 && y >= 69 && y < 87)) return colors.paper;
+  if (inCircle(x, y, 178, 164, 34) && !inCircle(x, y, 178, 164, 20)) return colors.gold;
+  if ((x >= 174 && x < 182 && y >= 122 && y < 170) || (x >= 178 && x < 216 && y >= 166 && y < 174)) return colors.red;
+  if ((x >= 58 && x < 154 && y >= 70 && y < 84) || (x >= 58 && x < 190 && y >= 105 && y < 119) || (x >= 58 && x < 140 && y >= 140 && y < 154) || (x >= 58 && x < 174 && y >= 175 && y < 189)) return colors.ink;
+  return colors.paper;
+}));
+console.log(`Icon written to ${pngPath}`);
+
+function inCircle(x, y, cx, cy, radius) {
+  const dx = x - cx;
+  const dy = y - cy;
+  return dx * dx + dy * dy <= radius * radius;
+}
+
+function createPng(width, pixelAt) {
+  const zlib = require("node:zlib");
+  const height = width;
+  const raw = Buffer.alloc((width * 4 + 1) * height);
+  for (let y = 0; y < height; y += 1) {
+    const row = y * (width * 4 + 1);
+    raw[row] = 0;
+    for (let x = 0; x < width; x += 1) {
+      const [r, g, b, a] = pixelAt(x, y);
+      const index = row + 1 + x * 4;
+      raw[index] = r;
+      raw[index + 1] = g;
+      raw[index + 2] = b;
+      raw[index + 3] = a;
+    }
+  }
+
+  return Buffer.concat([
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+    pngChunk("IHDR", Buffer.concat([
+      uint32(width),
+      uint32(height),
+      Buffer.from([8, 6, 0, 0, 0])
+    ])),
+    pngChunk("IDAT", zlib.deflateSync(raw)),
+    pngChunk("IEND", Buffer.alloc(0))
+  ]);
+}
+
+function pngChunk(type, data) {
+  const typeBuffer = Buffer.from(type, "ascii");
+  const crcInput = Buffer.concat([typeBuffer, data]);
+  return Buffer.concat([
+    uint32(data.length),
+    typeBuffer,
+    data,
+    uint32(crc32(crcInput))
+  ]);
+}
+
+function uint32(value) {
+  const out = Buffer.alloc(4);
+  out.writeUInt32BE(value >>> 0);
+  return out;
+}
+
+function crc32(buffer) {
+  let crc = 0xffffffff;
+  for (const byte of buffer) {
+    crc ^= byte;
+    for (let bit = 0; bit < 8; bit += 1) {
+      crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1));
+    }
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+}

@@ -20,10 +20,14 @@ jobs:
             artifact: "dist/*.exe"
           - os: macos-latest
             script: package:mac
-            artifact: "dist/*.{dmg,zip}"
+            artifact: |
+              dist/*.dmg
+              dist/*.zip
           - os: ubuntu-latest
             script: package:linux
-            artifact: "dist/*.{AppImage,deb}"
+            artifact: |
+              dist/*.AppImage
+              dist/*.deb
     runs-on: ${{ matrix.os }}
     env:
       CSC_IDENTITY_AUTO_DISCOVERY: "false"
